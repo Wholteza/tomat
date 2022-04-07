@@ -1,21 +1,59 @@
+import { Button, Container, Grid, Typography } from "@mui/material";
 import createTheme from "@mui/material/styles/createTheme";
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
-import Typography from "@mui/material/Typography";
 import { useMemo } from "react";
 import useFirebase from "./infrastructure/firebase/use-firebase";
-import useRoom from "./use-room";
+import useRoom, { TimerType } from "./use-room";
 
 const App = () => {
   const firebase = useFirebase();
   // Update the theme only if the mode changes
   const theme = useMemo(() => createTheme({ palette: { mode: "dark" } }), []);
-  const { timeLeft } = useRoom();
+  const { timeLeft, startNewTimer } = useRoom();
 
   return (
     <ThemeProvider theme={theme}>
-      <Typography variant="h1">
-        {timeLeft.minutes}:{timeLeft.seconds}
-      </Typography>
+      <Container
+        sx={{
+          bgcolor: "background.default",
+          height: "100vh",
+          minWidth: "100%",
+          padding: 5,
+        }}
+      >
+        <Grid container direction="column" alignContent="center" spacing={3}>
+          <Grid item>
+            <Typography variant="h1" sx={{ color: "text.primary" }}>
+              {timeLeft.minutes}:{timeLeft.seconds}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Grid
+              container
+              direction="row"
+              justifyContent="space-around"
+              spacing={1}
+            >
+              <Grid item>
+                <Button
+                  variant="contained"
+                  onClick={() => startNewTimer(25 * 60, TimerType.Work)}
+                >
+                  Work
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button
+                  variant="contained"
+                  onClick={() => startNewTimer(5 * 60, TimerType.Break)}
+                >
+                  Break
+                </Button>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Container>
     </ThemeProvider>
   );
 };
