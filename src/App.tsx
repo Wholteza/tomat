@@ -24,19 +24,20 @@ const App = () => {
         <Grid container direction="column" alignContent="center" spacing={3}>
           <Grid item>
             <Typography variant="h1" sx={{ color: "text.primary" }}>
-              {timeLeft.minutes}:{timeLeft.seconds}
+              {timeLeft.minutes.toString().padStart(2, "0")}:
+              {timeLeft.seconds.toString().padStart(2, "0")}
             </Typography>
           </Grid>
           <Grid item>
             <Grid
               container
               direction="row"
-              justifyContent="space-around"
+              justifyContent="space-evenly"
               spacing={1}
             >
               <Grid item>
                 <Button
-                  variant="contained"
+                  variant="outlined"
                   onClick={() => startNewTimer(25 * 60, TimerType.Work)}
                 >
                   Work
@@ -44,7 +45,8 @@ const App = () => {
               </Grid>
               <Grid item>
                 <Button
-                  variant="contained"
+                  color="secondary"
+                  variant="outlined"
                   onClick={() => startNewTimer(5 * 60, TimerType.Break)}
                 >
                   Break
