@@ -30,14 +30,15 @@
   "rules": {
     // deprecated rules
     "react/react-in-jsx-scope": "off",
+    "no-unused-vars": "off",
     // rules we want
-    "no-unused-vars": "warn",
+    "@typescript-eslint/no-unused-vars": ["warn"],
     "indent": ["error", 2],
     "linebreak-style": ["error", "unix"],
     "quotes": ["error", "double"],
     "semi": ["error", "always"],
     "prettier/prettier": [
-      "error",
+      "warn",
       { "semi": true, "tabWidth": 2, "singleQuote": false, "endOfLine": "lf" }
     ]
   }

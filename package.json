@@ -13,8 +13,10 @@
     "@fontsource/roboto": "^4.5.5",
     "@mui/icons-material": "^5.6.0",
     "@mui/material": "^5.6.0",
+    "date-fns": "^2.28.0",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "usehooks-ts": "^2.4.2"
   },
   "devDependencies": {
     "@types/react": "^17.0.33",
