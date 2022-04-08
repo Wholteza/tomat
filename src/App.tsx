@@ -1,4 +1,4 @@
-import { Button, Container, Grid, Typography } from "@mui/material";
+import { Button, Container, Grid, TextField, Typography } from "@mui/material";
 import createTheme from "@mui/material/styles/createTheme";
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import { useMemo } from "react";
@@ -23,7 +23,11 @@ const App = () => {
       >
         <Grid container direction="column" alignContent="center" spacing={3}>
           <Grid item>
-            <Typography variant="h1" sx={{ color: "text.primary" }}>
+            <Typography
+              align="center"
+              variant="h1"
+              sx={{ color: "text.primary" }}
+            >
               {timeLeft.minutes.toString().padStart(2, "0")}:
               {timeLeft.seconds.toString().padStart(2, "0")}
             </Typography>
@@ -48,6 +52,15 @@ const App = () => {
                   color="secondary"
                   variant="outlined"
                   onClick={() => startNewTimer(5 * 60, TimerType.Break)}
+                >
+                  Switch
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button
+                  color="secondary"
+                  variant="outlined"
+                  onClick={() => startNewTimer(10 * 60, TimerType.Break)}
                 >
                   Break
                 </Button>
