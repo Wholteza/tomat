@@ -48,7 +48,7 @@ const useRoom = (): Props => {
     let newTime: TimeLeft = timer && getTimeLeft(timer);
     if (newTime.finished) newTime = { ...newTime, minutes: 0, seconds: 0 };
     setTimeLeft(newTime);
-  }, 100);
+  }, 10);
 
   const startNewTimer = useCallback(
     (durationSeconds: number, type: TimerType) =>
