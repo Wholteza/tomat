@@ -1,15 +1,14 @@
-import { add, addSeconds, differenceInSeconds } from "date-fns";
+import { addSeconds, differenceInSeconds, getUnixTime } from "date-fns";
 import { FirebaseApp } from "firebase/app";
 import {
-  addDoc,
-  collection,
   doc,
   Firestore,
   FirestoreDataConverter,
   getDoc,
-  getDocFromCache,
   getFirestore,
+  onSnapshot,
   setDoc,
+  Unsubscribe,
 } from "firebase/firestore";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useInterval } from "usehooks-ts";
@@ -29,6 +28,7 @@ export class Timer extends EntityBase {
   public type: TimerType;
   public durationSeconds: number;
   public version: number = 1;
+  public hash: string;
 
   public constructor(durationSeconds: number, type: TimerType) {
     super();
@@ -36,7 +36,13 @@ export class Timer extends EntityBase {
     this.durationSeconds = durationSeconds;
     this.startTime = new Date(Date.now());
     this.endTime = addSeconds(this.startTime, durationSeconds);
+    this.hash = this.createHash();
   }
+
+  private createHash = () =>
+    `${this.type}${this.durationSeconds}${getUnixTime(
+      this.startTime
+    )}${getUnixTime(this.endTime)}`;
 
   getTimeLeft = () => {
     const difference = differenceInSeconds(this.endTime, new Date(Date.now()));
@@ -47,18 +53,8 @@ export class Timer extends EntityBase {
     };
   };
 
-  isTheSameAs = (otherTimer: Timer) => {
-    const startTimeIsSame =
-      this.startTime.toUTCString() === otherTimer.startTime.toUTCString();
-    const endTimeIsSame =
-      this.endTime.toUTCString() === otherTimer.endTime.toUTCString();
-    const durationSecondsIsSame =
-      this.durationSeconds === otherTimer.durationSeconds;
-    const typeIsSame = this.type === otherTimer.type;
-    return (
-      startTimeIsSame && endTimeIsSame && durationSecondsIsSame && typeIsSame
-    );
-  };
+  isTheSameAs = (otherTimer: Timer | undefined) =>
+    this.hash === otherTimer?.hash;
 
   public static converter: FirestoreDataConverter<Timer> = {
     toFirestore: (timer) => ({
@@ -66,12 +62,14 @@ export class Timer extends EntityBase {
       endTime: timer.endTime,
       type: timer.type,
       durationSeconds: timer.durationSeconds,
+      hash: timer.hash,
     }),
     fromFirestore: (snapshot, options) => {
       const data = snapshot.data(options);
       const timer = new Timer(data.durationSeconds, data.type);
       timer.startTime = data.startTime.toDate();
       timer.endTime = data.endTime.toDate();
+      timer.hash = data.hash;
 
       return timer;
     },
@@ -88,6 +86,7 @@ type Props = {
 
 const useTimer = (app: FirebaseApp, room: Room): Props => {
   const db = useMemo<Firestore>(() => getFirestore(app), [app]);
+  const [unsubscribe, setUnsubscribe] = useState<Unsubscribe>();
   const [localTimer, setLocalTimer] = useState<Timer>();
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(
     localTimer?.getTimeLeft() ?? {
@@ -105,14 +104,15 @@ const useTimer = (app: FirebaseApp, room: Room): Props => {
     };
     if (newTime?.finished) newTime = { ...newTime, minutes: 0, seconds: 0 };
     setTimeLeft(newTime);
-  }, 10);
+  }, 1000);
 
   const startNewTimer = useCallback(
     (durationSeconds: number, type: TimerType) => {
       const timer = new Timer(durationSeconds, type);
+      unsubscribe?.();
       setLocalTimer(timer);
     },
-    []
+    [unsubscribe]
   );
 
   const ensureTimerExists = useCallback(
@@ -135,7 +135,7 @@ const useTimer = (app: FirebaseApp, room: Room): Props => {
           newTimer.id = timerId;
           await setDoc(timerReference, newTimer);
           setLocalTimer(newTimer);
-          console.log("No online room existed, created new one.");
+          console.log("No online timer existed, created new one.");
           return;
         }
         // Yes
@@ -172,11 +172,47 @@ const useTimer = (app: FirebaseApp, room: Room): Props => {
     [db, localTimer]
   );
 
+  const subscribeToChanges = useCallback(
+    (
+      timerId: string,
+      localTimer: Timer | undefined
+    ): Unsubscribe | undefined => {
+      const timerRef = doc(db, TIMER_COLLECTION_PATH, timerId).withConverter(
+        Timer.converter
+      );
+      const unsubscribe = onSnapshot(timerRef, (doc) => {
+        if (!doc.exists()) {
+          console.log("Recieved document did not exist, ignoring");
+          return;
+        }
+        const newTimer = doc.data();
+        newTimer.id = timerId;
+        // is the incoming timer same as local timer
+        // yes, then ignore it
+        if (newTimer.isTheSameAs(localTimer)) {
+          console.log("Incoming timer was the same as local timer, ignoring");
+          return;
+        }
+        // no, then use it
+        console.log("Incoming timer was not the same as local timer, using it");
+        setLocalTimer(newTimer);
+      });
+      return unsubscribe;
+    },
+    [db]
+  );
+
   useEffect(() => {
     if (!room.exists()) return;
     if (localTimer?.exists()) return;
     ensureTimerExists(room.id!);
   }, [ensureTimerExists, room, localTimer]);
+
+  useEffect(() => {
+    if (!room.exists()) return;
+    const unsubscribe = subscribeToChanges(room.id!, localTimer);
+    return () => unsubscribe?.();
+  }, [subscribeToChanges, localTimer, localTimer?.hash, room]);
 
   return { startNewTimer, timeLeft, timer: localTimer };
 };

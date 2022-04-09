@@ -78,11 +78,6 @@ const App = () => {
               </Grid>
             </Grid>
           </Grid>
-          <Grid item>
-            <Typography sx={{ color: "text.primary" }}>
-              {JSON.stringify(timer)}
-            </Typography>
-          </Grid>
         </Grid>
       </Container>
     </ThemeProvider>

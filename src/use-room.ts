@@ -107,7 +107,7 @@ const useRoom = (app: FirebaseApp): Props => {
     [db]
   );
 
-  const getRoom = useCallback(
+  const ensureRoom = useCallback(
     async (newRoom: Room) => {
       try {
         const docRef = doc(
@@ -117,11 +117,13 @@ const useRoom = (app: FirebaseApp): Props => {
         ).withConverter(newRoom.converter);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
+          console.log("Online room existed, using that one");
           const room = docSnap.data();
           room.id = newRoom.name;
           setRoom(room);
           return;
         }
+        console.log("Online room did not exist, creating one");
         await setDoc(docRef, newRoom);
         setRoom((prev) => {
           prev.id = newRoom.name;
@@ -136,9 +138,8 @@ const useRoom = (app: FirebaseApp): Props => {
 
   useEffect(() => {
     if (room.exists()) return;
-    console.log("adding room");
-    getRoom(room);
-  }, [getRoom, room, room?.id]);
+    ensureRoom(room);
+  }, [ensureRoom, room, room?.id]);
 
   return { room };
 };
