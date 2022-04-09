@@ -3,13 +3,15 @@ import createTheme from "@mui/material/styles/createTheme";
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import { useMemo } from "react";
 import useFirebase from "./infrastructure/firebase/use-firebase";
-import useRoom, { TimerType } from "./use-room";
+import useRoom from "./use-room";
+import useTimer, { TimerType } from "./use-timer";
 
 const App = () => {
   const firebase = useFirebase();
   // Update the theme only if the mode changes
   const theme = useMemo(() => createTheme({ palette: { mode: "dark" } }), []);
-  const { timeLeft, startNewTimer, timer, addUser } = useRoom(firebase.app);
+  const { room } = useRoom(firebase.app);
+  const { startNewTimer, timer, timeLeft } = useTimer(firebase.app, room);
 
   return (
     <ThemeProvider theme={theme}>
@@ -22,6 +24,15 @@ const App = () => {
         }}
       >
         <Grid container direction="column" alignContent="center" spacing={3}>
+          <Grid item>
+            <Typography
+              align="center"
+              variant="h4"
+              sx={{ color: "text.secondary" }}
+            >
+              {room?.name}
+            </Typography>
+          </Grid>
           <Grid item>
             <Typography
               align="center"
@@ -65,19 +76,12 @@ const App = () => {
                   Break
                 </Button>
               </Grid>
-              <Grid item>
-                <Button
-                  color="secondary"
-                  variant="outlined"
-                  onClick={() => addUser()}
-                >
-                  adduser
-                </Button>
-              </Grid>
             </Grid>
           </Grid>
           <Grid item>
-            <Typography>{JSON.stringify(timer)}</Typography>
+            <Typography sx={{ color: "text.primary" }}>
+              {JSON.stringify(timer)}
+            </Typography>
           </Grid>
         </Grid>
       </Container>

@@ -62,7 +62,8 @@
         "tabWidth": 2,
         "singleQuote": false,
         "endOfLine": "lf",
-        "printWidth": 80
+        "printWidth": 80,
+        "tailingComma": "none"
       }
     ]
   }
