@@ -11,7 +11,7 @@ const App = () => {
   // Update the theme only if the mode changes
   const theme = useMemo(() => createTheme({ palette: { mode: "dark" } }), []);
   const { room } = useRoom(firebase.app);
-  const { startNewTimer, timer, timeLeft } = useTimer(firebase.app, room);
+  const { startNewTimer, timeLeft } = useTimer(firebase.app, room);
 
   return (
     <ThemeProvider theme={theme}>
