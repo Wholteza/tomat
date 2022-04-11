@@ -1,14 +1,12 @@
-import { FirebaseApp } from "firebase/app";
 import {
   addDoc,
   collection,
   doc,
   Firestore,
   FirestoreDataConverter,
-  getFirestore,
   setDoc,
 } from "firebase/firestore";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import EntityBase from "./infrastructure/firebase/firebase-entity";
 
 const USER_NAME = "Anonymous User";
@@ -43,8 +41,7 @@ type Props = {
   user: User | undefined;
 };
 
-const useUser = (app: FirebaseApp): Props => {
-  const db = useMemo<Firestore>(() => getFirestore(app), [app]);
+const useUser = (db: Firestore): Props => {
   const [user, setUser] = useState<User>();
   const updateUser = useCallback(async () => {
     try {

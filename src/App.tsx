@@ -1,17 +1,31 @@
 import { Button, Container, Grid, Typography } from "@mui/material";
 import createTheme from "@mui/material/styles/createTheme";
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import useDb from "./infrastructure/firebase/use-db";
 import useFirebase from "./infrastructure/firebase/use-firebase";
 import useRoom from "./use-room";
+// import useSound from "./use-sound";
 import useTimer, { TimerType } from "./use-timer";
+import timerStarting from "./sounds/timer-starting.mp3";
+import timerEnding from "./sounds/timer-ending.mp3";
 
 const App = () => {
+  const timerStartingAudioRef = useRef<HTMLAudioElement>(null);
+  const timerEndingAudioRef = useRef<HTMLAudioElement>(null);
+
   const firebase = useFirebase();
-  // Update the theme only if the mode changes
+  const db = useDb(firebase.app);
+  const { room } = useRoom(db);
+  const { startNewTimer, timeLeft } = useTimer(
+    db,
+    room,
+    timerStartingAudioRef,
+    timerEndingAudioRef
+  );
+  // const { soundElement: SoundElement } = useSound();
+
   const theme = useMemo(() => createTheme({ palette: { mode: "dark" } }), []);
-  const { room } = useRoom(firebase.app);
-  const { startNewTimer, timeLeft } = useTimer(firebase.app, room);
 
   return (
     <ThemeProvider theme={theme}>
@@ -31,6 +45,15 @@ const App = () => {
               sx={{ color: "text.secondary" }}
             >
               {room?.name}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography
+              align="center"
+              variant="h6"
+              sx={{ color: "text.secondary" }}
+            >
+              {timeLeft.type}
             </Typography>
           </Grid>
           <Grid item>
@@ -79,6 +102,12 @@ const App = () => {
             </Grid>
           </Grid>
         </Grid>
+        <audio src={timerEnding} ref={timerEndingAudioRef}>
+          timerStarting
+        </audio>
+        <audio src={timerStarting} ref={timerStartingAudioRef}>
+          timerStarting
+        </audio>
       </Container>
     </ThemeProvider>
   );

@@ -72,8 +72,7 @@ type Props = {
   room: Room;
 };
 
-const useRoom = (app: FirebaseApp): Props => {
-  const db = useMemo<Firestore>(() => getFirestore(app), [app]);
+const useRoom = (db: Firestore): Props => {
   const [user, setUser] = useState<User>();
   const [room, setRoom] = useState<Room>(new Room(ROOM_NAME));
   const updateUser = useCallback(async () => {

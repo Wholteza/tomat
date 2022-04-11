@@ -1,16 +1,14 @@
 import { addSeconds, differenceInSeconds, getUnixTime } from "date-fns";
-import { FirebaseApp } from "firebase/app";
 import {
   doc,
   Firestore,
   FirestoreDataConverter,
   getDoc,
-  getFirestore,
   onSnapshot,
   setDoc,
   Unsubscribe,
 } from "firebase/firestore";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { RefObject, useCallback, useEffect, useState } from "react";
 import { useInterval } from "usehooks-ts";
 import EntityBase from "./infrastructure/firebase/firebase-entity";
 import { Room } from "./use-room";
@@ -50,6 +48,7 @@ export class Timer extends EntityBase {
       minutes: Math.floor(difference / 60),
       seconds: difference % 60,
       finished: difference <= 0,
+      type: this.type,
     };
   };
 
@@ -66,7 +65,10 @@ export class Timer extends EntityBase {
     }),
     fromFirestore: (snapshot, options) => {
       const data = snapshot.data(options);
-      const timer = new Timer(data.durationSeconds, data.type);
+      const timer = new Timer(
+        data.durationSeconds,
+        TimerType[data.type as keyof typeof TimerType]
+      );
       timer.startTime = data.startTime.toDate();
       timer.endTime = data.endTime.toDate();
       timer.hash = data.hash;
@@ -76,7 +78,12 @@ export class Timer extends EntityBase {
   };
 }
 
-type TimeLeft = { minutes: number; seconds: number; finished: boolean };
+type TimeLeft = {
+  minutes: number;
+  seconds: number;
+  finished: boolean;
+  type: TimerType;
+};
 
 type Props = {
   timer: Timer | undefined;
@@ -84,15 +91,19 @@ type Props = {
   startNewTimer: (durationSeconds: number, type: TimerType) => void;
 };
 
-const useTimer = (app: FirebaseApp, room: Room): Props => {
-  const db = useMemo<Firestore>(() => getFirestore(app), [app]);
-  const [unsubscribe, setUnsubscribe] = useState<Unsubscribe>();
+const useTimer = (
+  db: Firestore,
+  room: Room,
+  timerStartingAudioRef: RefObject<HTMLAudioElement>,
+  timerEndingAudioRef: RefObject<HTMLAudioElement>
+): Props => {
   const [localTimer, setLocalTimer] = useState<Timer>();
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(
     localTimer?.getTimeLeft() ?? {
       minutes: 0,
       seconds: 0,
       finished: true,
+      type: TimerType.Break,
     }
   );
 
@@ -101,18 +112,27 @@ const useTimer = (app: FirebaseApp, room: Room): Props => {
       seconds: 0,
       minutes: 0,
       finished: true,
+      type: TimerType.Break,
     };
-    if (newTime?.finished) newTime = { ...newTime, minutes: 0, seconds: 0 };
-    setTimeLeft(newTime);
+    if (newTime?.finished) {
+      newTime = { ...newTime, minutes: 0, seconds: 0 };
+    }
+
+    setTimeLeft((prev) => {
+      !prev?.finished &&
+        newTime.finished &&
+        timerEndingAudioRef?.current?.play();
+      return newTime;
+    });
   }, 1000);
 
   const startNewTimer = useCallback(
     (durationSeconds: number, type: TimerType) => {
       const timer = new Timer(durationSeconds, type);
-      unsubscribe?.();
       setLocalTimer(timer);
+      timerStartingAudioRef.current?.play();
     },
-    [unsubscribe]
+    [timerStartingAudioRef]
   );
 
   const ensureTimerExists = useCallback(
@@ -196,10 +216,11 @@ const useTimer = (app: FirebaseApp, room: Room): Props => {
         // no, then use it
         console.log("Incoming timer was not the same as local timer, using it");
         setLocalTimer(newTimer);
+        timerStartingAudioRef.current?.play();
       });
       return unsubscribe;
     },
-    [db]
+    [db, timerStartingAudioRef]
   );
 
   useEffect(() => {
