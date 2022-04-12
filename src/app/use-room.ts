@@ -10,7 +10,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import EntityBase from "./infrastructure/firebase/firebase-entity";
+import EntityBase from "../infrastructure/firebase/firebase-entity";
 
 const ROOM_NAME = "Yggdrasil";
 const USER_NAME = "Anonymous User";

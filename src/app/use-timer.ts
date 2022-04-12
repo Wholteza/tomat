@@ -10,7 +10,7 @@ import {
 } from "firebase/firestore";
 import { RefObject, useCallback, useEffect, useState } from "react";
 import { useInterval } from "usehooks-ts";
-import EntityBase from "./infrastructure/firebase/firebase-entity";
+import EntityBase from "../infrastructure/firebase/firebase-entity";
 import { Room } from "./use-room";
 
 const TIMER_COLLECTION_PATH = "timers";

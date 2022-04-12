@@ -7,7 +7,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { useCallback, useState } from "react";
-import EntityBase from "./infrastructure/firebase/firebase-entity";
+import EntityBase from "../infrastructure/firebase/firebase-entity";
 
 const USER_NAME = "Anonymous User";
 

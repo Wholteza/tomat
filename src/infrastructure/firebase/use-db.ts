@@ -5,11 +5,13 @@ import {
   connectFirestoreEmulator,
 } from "firebase/firestore";
 import { useMemo } from "react";
+import environmentVariables from "../../app/environment-variables";
 
 const useDb = (app: FirebaseApp): Firestore => {
   const db = useMemo<Firestore>(() => {
     const db = getFirestore(app);
-    //connectFirestoreEmulator(db, "localhost", 8080);
+    environmentVariables.MODE.isLocalhost() &&
+      connectFirestoreEmulator(db, "localhost", 8080);
     return db;
   }, [app]);
 
