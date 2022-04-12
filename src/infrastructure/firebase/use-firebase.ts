@@ -8,13 +8,13 @@ type UseFirebaseProps = {
 };
 
 const firebaseConfig = {
-  apiKey: import.meta.env.firebaseConfigApiKey,
-  authDomain: import.meta.env.firebaseConfigAuthDomain,
-  projectId: import.meta.env.firebaseConfigProjectId,
-  storageBucket: import.meta.env.firebaseConfigStorageBucket,
-  messagingSenderId: import.meta.env.firebaseConfigMessagingSenderId,
-  appId: import.meta.env.firebaseConfigAppId,
-  measurementId: import.meta.env.firebaseConfigMeasurementId,
+  apiKey: import.meta.env.VITE_FIREBASECONFIG_APIKEY,
+  authDomain: import.meta.env.VITE_FIREBASECONFIG_AUTHDOMAIN,
+  projectId: import.meta.env.VITE_FIREBASECONFIG_PROJECTID,
+  storageBucket: import.meta.env.VITE_FIREBASECONFIG_STORAGEBUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASECONFIG_MESSAGINGSENDERID,
+  appId: import.meta.env.VITE_FIREBASECONFIG_APPID,
+  measurementId: import.meta.env.VITE_FIREBASECONFIG_MEASUREMENTID,
 };
 
 const useFirebase = (): UseFirebaseProps => {
