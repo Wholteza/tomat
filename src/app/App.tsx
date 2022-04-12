@@ -5,7 +5,6 @@ import { useMemo, useRef } from "react";
 import useDb from "../infrastructure/firebase/use-db";
 import useFirebase from "../infrastructure/firebase/use-firebase";
 import useRoom from "./use-room";
-// import useSound from "./use-sound";
 import useTimer, { TimerType } from "./use-timer";
 import timerStarting from "./sounds/timer-starting.mp3";
 import timerEnding from "./sounds/timer-ending.mp3";
@@ -23,7 +22,6 @@ const App = () => {
     timerStartingAudioRef,
     timerEndingAudioRef
   );
-  // const { soundElement: SoundElement } = useSound();
 
   const theme = useMemo(() => createTheme({ palette: { mode: "dark" } }), []);
 
