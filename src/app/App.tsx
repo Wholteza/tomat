@@ -133,6 +133,8 @@ const App = () => {
           <Link
             href="https://www.flaticon.com/free-icons/tomato"
             title="tomato icons"
+            rel="noopener"
+            target="_blank"
           >
             Tomato icons created by Pixel perfect - Flaticon
           </Link>
