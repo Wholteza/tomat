@@ -26,7 +26,7 @@ const App = () => {
   const firebase = useFirebase();
   const db = useDb(firebase.app);
   const { room } = useRoom(db);
-  const { startNewTimer, timeLeft } = useTimer(
+  const { start, timeLeft } = useTimer(
     db,
     room,
     timerStartingAudioRef,
@@ -88,7 +88,7 @@ const App = () => {
               <Grid item>
                 <Button
                   variant="outlined"
-                  onClick={() => startNewTimer(25 * 60, TimerType.Work)}
+                  onClick={() => start(25 * 60, TimerType.Work)}
                 >
                   Work
                 </Button>
@@ -97,7 +97,7 @@ const App = () => {
                 <Button
                   color="secondary"
                   variant="outlined"
-                  onClick={() => startNewTimer(5 * 60, TimerType.Break)}
+                  onClick={() => start(5 * 60, TimerType.Break)}
                 >
                   Switch
                 </Button>
@@ -106,7 +106,7 @@ const App = () => {
                 <Button
                   color="secondary"
                   variant="outlined"
-                  onClick={() => startNewTimer(10 * 60, TimerType.Break)}
+                  onClick={() => start(10 * 60, TimerType.Break)}
                 >
                   Break
                 </Button>

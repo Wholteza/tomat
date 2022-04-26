@@ -1,9 +1,33 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if
-          request.time < timestamp.date(2022, 5, 7);
+    match /rooms/{room} { 
+      function isValidRoom(){
+        let hasExactAmountOfProperties = request.resource.data.size() == 2;
+        let isCorrectVersion = request.resource.data.version == 1;
+        let hasSameNameAsDocumentId = request.resource.data.name == room;
+        return hasExactAmountOfProperties && isCorrectVersion && hasSameNameAsDocumentId;
+      }
+
+      allow get: if true;
+      allow create, update: if isValidRoom();
+      allow delete, list: if false;
+    }
+    match /timers/{timer} {
+      function isValidTimer(){
+        let hasExactAmountOfProperties = request.resource.data.size() == 4;
+        let isCorrectVersion = request.resource.data.version == 1;
+        let endTimeIsValid = request.resource.data.endTime != null;
+        let typeIsValid = request.resource.data.type == "Work" || request.resource.data.type == "Break" ;
+        let durationSecondsIsValid = request.resource.data.durationSeconds > 0;
+        return hasExactAmountOfProperties && isCorrectVersion && endTimeIsValid && typeIsValid && durationSecondsIsValid;
+      }
+      function roomExist(){
+        return exists(/databases/$(database)/documents/rooms/$(timer)) == true
+      }
+      allow read: if true;
+      allow create, update: if roomExist() && isValidTimer();
+      allow delete, list: if false;
     }
   }
 }
