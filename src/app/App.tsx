@@ -130,15 +130,17 @@ const App = () => {
         </Button>
 
         <Dialog open={attributionsOpen}>
-          <Link
+          <Button
             href="https://www.flaticon.com/free-icons/tomato"
             title="tomato icons"
             rel="noopener"
             target="_blank"
           >
             Tomato icons created by Pixel perfect - Flaticon
-          </Link>
-          <Button onClick={() => setAttributionsOpen(false)}>Close</Button>
+          </Button>
+          <Button color="secondary" onClick={() => setAttributionsOpen(false)}>
+            Close
+          </Button>
         </Dialog>
       </Container>
     </ThemeProvider>
