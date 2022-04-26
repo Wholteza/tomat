@@ -49,4 +49,4 @@ jobs:
         with:
           args: deploy --only hosting,storage
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TOMAT_D4561 }}
+          GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TOMAT_D4561 }}
