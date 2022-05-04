@@ -3,12 +3,12 @@ import {
   Container,
   Dialog,
   Grid,
-  Link,
+  TextField,
   Typography,
 } from "@mui/material";
 import createTheme from "@mui/material/styles/createTheme";
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import useDb from "../infrastructure/firebase/use-db";
 import useFirebase from "../infrastructure/firebase/use-firebase";
 import useRoom from "./use-room";
@@ -19,6 +19,7 @@ import useDocumentTitle from "./use-document-title";
 
 const App = () => {
   const [attributionsOpen, setAttributionsOpen] = useState<boolean>(false);
+  const [customTime, setCustomTime] = useState<number>();
 
   const timerStartingAudioRef = useRef<HTMLAudioElement>(null);
   const timerEndingAudioRef = useRef<HTMLAudioElement>(null);
@@ -39,6 +40,11 @@ const App = () => {
   useDocumentTitle(`${timer} - ${timeLeft.type} - Tomat`);
 
   const theme = useMemo(() => createTheme({ palette: { mode: "dark" } }), []);
+
+  const handleOnStart = useCallback(
+    () => customTime && start(customTime * 60, TimerType.Work),
+    [customTime, start]
+  );
 
   return (
     <ThemeProvider theme={theme}>
@@ -109,6 +115,45 @@ const App = () => {
                   onClick={() => start(10 * 60, TimerType.Break)}
                 >
                   Break
+                </Button>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item>
+            <Grid
+              container
+              direction="row"
+              justifyContent="space-evenly"
+              spacing={1}
+              alignItems="center"
+            >
+              <Grid item>
+                <TextField
+                  variant="standard"
+                  autoComplete="off"
+                  label="Custom time (minutes)"
+                  size="small"
+                  value={customTime ?? ""}
+                  onChange={(event) =>
+                    setCustomTime((prev) => {
+                      if (event.target.value === "") return undefined;
+                      const number = Number.parseInt(event.target.value);
+                      return isNaN(number) ? prev : number;
+                    })
+                  }
+                  onKeyUp={(event) => {
+                    if (event.key !== "Enter") return;
+                    handleOnStart();
+                  }}
+                />
+              </Grid>
+              <Grid item alignSelf={"flex-end"}>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={handleOnStart}
+                >
+                  Start
                 </Button>
               </Grid>
             </Grid>
