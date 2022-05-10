@@ -29,5 +29,8 @@ service cloud.firestore {
       allow create, update: if roomExist() && isValidTimer();
       allow delete, list: if false;
     }
+    match /usersInRoom/{room} {
+      allow read, list, create, update: if true;
+    }
   }
 }

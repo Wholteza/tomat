@@ -16,10 +16,14 @@ import useTimer, { TimerType } from "./use-timer";
 import timerStarting from "./sounds/timer-starting.mp3";
 import timerEnding from "./sounds/timer-ending.mp3";
 import useDocumentTitle from "./use-document-title";
+import useUser from "./use-user";
+import useUsersInRoom from "./use-users-in-room";
+import { Chance } from "chance";
 
 const App = () => {
   const [attributionsOpen, setAttributionsOpen] = useState<boolean>(false);
   const [customTime, setCustomTime] = useState<number>();
+  const [userName, setUserName] = useState<string>(new Chance().name());
 
   const timerStartingAudioRef = useRef<HTMLAudioElement>(null);
   const timerEndingAudioRef = useRef<HTMLAudioElement>(null);
@@ -27,6 +31,8 @@ const App = () => {
   const firebase = useFirebase();
   const db = useDb(firebase.app);
   const { room } = useRoom(db);
+  const { user, changeUsername } = useUser(db, userName);
+  const users = useUsersInRoom(db, room, user);
   const { start, timeLeft } = useTimer(
     db,
     room,
@@ -156,6 +162,48 @@ const App = () => {
                   Start
                 </Button>
               </Grid>
+            </Grid>
+          </Grid>
+          <Grid item>
+            <Grid
+              container
+              direction="row"
+              justifyContent="space-evenly"
+              spacing={1}
+              alignItems="center"
+            >
+              <Typography sx={{ color: "text.primary" }}>
+                {user.name}
+              </Typography>
+              <TextField
+                variant="standard"
+                autoComplete="off"
+                label="Custom time (minutes)"
+                size="small"
+                value={userName}
+                onChange={(event) => setUserName(event.target.value)}
+                onKeyUp={(event) => {
+                  if (event.key !== "Enter") return;
+                  changeUsername(userName);
+                }}
+              />
+            </Grid>
+          </Grid>
+          <Grid item>
+            <Grid
+              container
+              direction="row"
+              justifyContent="space-evenly"
+              spacing={1}
+              alignItems="center"
+            >
+              {users.map((u) => (
+                <Grid item key={u.name}>
+                  <Typography sx={{ color: "text.primary" }}>
+                    {u.name}
+                  </Typography>
+                </Grid>
+              ))}
             </Grid>
           </Grid>
         </Grid>
