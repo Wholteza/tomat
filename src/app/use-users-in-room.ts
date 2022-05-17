@@ -89,8 +89,21 @@ const useUsersInRoom = (db: Firestore, room: Room, myUser: User): User[] => {
         users: arrayRemove(User.converter.toFirestore(myUser)),
       });
     };
-    window.addEventListener("unload", removeSelf);
     return removeSelf;
+  }, [db, myUser, room.name]);
+
+  useEffect(() => {
+    const removeSelf = () => {
+      const listRef = doc(
+        db,
+        USERS_IN_ROOM_COLLECTION_PATH,
+        room.name
+      ).withConverter(UsersInRoom.converter);
+      updateDoc(listRef, {
+        users: arrayRemove(User.converter.toFirestore(myUser)),
+      });
+    };
+    window.onbeforeunload = removeSelf;
   }, [db, myUser, room.name]);
 
   useEffect(() => {
