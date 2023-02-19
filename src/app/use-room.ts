@@ -5,7 +5,8 @@ import {
   getDoc,
   setDoc,
 } from "firebase/firestore";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import EntityBase from "../infrastructure/firebase/firebase-entity";
 
 const ROOM_NAME = "Yggdrasil";
@@ -20,8 +21,6 @@ export class Room extends EntityBase {
     super();
     this.name = name;
   }
-
-  public exists = () => !!this.id;
 
   public converter: FirestoreDataConverter<Room> = {
     toFirestore: (room) => ({
@@ -41,41 +40,44 @@ type Props = {
   room: Room;
 };
 
-const useRoom = (db: Firestore): Props => {
-  const [room, setRoom] = useState<Room>(new Room(ROOM_NAME));
-  const ensureRoom = useCallback(
-    async (newRoom: Room) => {
-      try {
-        const docRef = doc(
-          db,
-          ROOM_COLLECTION_PATH,
-          newRoom.name
-        ).withConverter(newRoom.converter);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          console.log("Online room existed, using that one");
-          const room = docSnap.data();
-          room.id = newRoom.name;
-          setRoom(room);
-          return;
-        }
-        console.log("Online room did not exist, creating one");
-        await setDoc(docRef, newRoom);
-        setRoom((prev) => {
-          prev.id = newRoom.name;
-          return prev;
-        });
-      } catch (e) {
-        console.error("Error adding document: ", e);
+const useRoom = (db: Firestore | undefined): Props => {
+  const { pathname } = useLocation();
+  const roomName = useMemo<string>(() => {
+    const roomNameRegex = /^\/(?<name>.*)/;
+    const { name } = pathname.match(roomNameRegex)?.groups ?? {};
+    return name ?? ROOM_NAME;
+  }, [pathname]);
+
+  const [room, setRoom] = useState<Room>(new Room(roomName));
+
+  const ensureRoom = useCallback(async (newRoom: Room, db: Firestore) => {
+    try {
+      const docRef = doc(db, ROOM_COLLECTION_PATH, newRoom.name).withConverter(
+        newRoom.converter
+      );
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        console.log("Online room existed, using that one");
+        const room = docSnap.data();
+        room.id = newRoom.name;
+        setRoom(room);
+        return;
       }
-    },
-    [db]
-  );
+      console.log("Online room did not exist, creating one");
+      await setDoc(docRef, newRoom);
+      setRoom((prev) => {
+        prev.id = newRoom.name;
+        return prev;
+      });
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  }, []);
 
   useEffect(() => {
-    if (room.exists()) return;
-    ensureRoom(room);
-  }, [ensureRoom, room, room?.id]);
+    if (!!room.id || !db) return;
+    ensureRoom(room, db);
+  }, [db, ensureRoom, room, room.id]);
 
   return { room };
 };
