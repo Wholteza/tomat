@@ -16,7 +16,6 @@ export default () => {
   return (
     <Container sx={{ margin: "0 auto" }}>
       <Container>
-        <ReleaseNotes />
         <Typography variant="h2">Tomat</Typography>
         <Typography variant="caption">A bare bones pomodoro timer</Typography>
         <Typography sx={{ padding: "5px" }}>
@@ -77,6 +76,7 @@ export default () => {
           </Button>
         </Container>
       </Container>
+      <ReleaseNotes />
     </Container>
   );
 };
