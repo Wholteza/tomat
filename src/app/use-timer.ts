@@ -7,7 +7,7 @@ import {
   setDoc,
   Unsubscribe,
 } from "firebase/firestore";
-import { RefObject, useCallback, useEffect, useState } from "react";
+import { RefObject, useCallback, useEffect, useMemo, useState } from "react";
 import { useInterval } from "usehooks-ts";
 import EntityBase from "../infrastructure/firebase/firebase-entity";
 import { Room } from "./use-room";
@@ -77,7 +77,7 @@ type Props = {
 };
 
 const useTimer = (
-  db: Firestore,
+  db: Firestore | undefined,
   room: Room,
   timerStartingAudioRef: RefObject<HTMLAudioElement>,
   timerEndingAudioRef: RefObject<HTMLAudioElement>
@@ -91,6 +91,7 @@ const useTimer = (
       type: TimerType.Break,
     }
   );
+  const roomExists = useMemo<boolean>(() => !!room?.id, [room?.id]);
 
   useInterval(() => {
     let newTime = timer?.getTimeLeft() ?? {
@@ -112,7 +113,7 @@ const useTimer = (
   }, 1000);
 
   const createTimer = useCallback(
-    async (timer: Timer, roomName: string) => {
+    async (timer: Timer, roomName: string, db: Firestore) => {
       try {
         const timerReference = doc(
           db,
@@ -124,34 +125,38 @@ const useTimer = (
         console.error("Failed to ensure timer:", e);
       }
     },
-    [db]
+    []
   );
 
-  const listenToTimerChanges = useCallback((): Unsubscribe | undefined => {
-    const timerRef = doc(db, TIMER_COLLECTION_PATH, room.name).withConverter(
-      Timer.converter
-    );
-    const unsubscribe = onSnapshot(timerRef, (doc) => {
-      if (!doc.exists()) return;
-      const newTimer = doc.data();
-      setTimer(newTimer);
-      timerStartingAudioRef.current?.play();
-    });
-    return unsubscribe;
-  }, [db, room.name, timerStartingAudioRef]);
+  const listenToTimerChanges = useCallback(
+    (db: Firestore): Unsubscribe | undefined => {
+      const timerRef = doc(db, TIMER_COLLECTION_PATH, room.name).withConverter(
+        Timer.converter
+      );
+      const unsubscribe = onSnapshot(timerRef, (doc) => {
+        if (!doc.exists()) return;
+        const newTimer = doc.data();
+        setTimer(newTimer);
+        timerStartingAudioRef.current?.play();
+      });
+      return unsubscribe;
+    },
+    [room.name, timerStartingAudioRef]
+  );
 
   useEffect(() => {
-    if (!room.exists()) return;
-    const unsubscribe = listenToTimerChanges();
+    if (!roomExists || !db) return;
+    const unsubscribe = listenToTimerChanges(db);
     return () => unsubscribe?.();
-  }, [listenToTimerChanges, room]);
+  }, [db, listenToTimerChanges, room?.id, roomExists]);
 
   const handleStart = useCallback(
     (durationSeconds: number, type: TimerType) => {
+      if (!db || !roomExists) return;
       const timer = new Timer(durationSeconds, type);
-      createTimer(timer, room.name);
+      createTimer(timer, room.name, db);
     },
-    [createTimer, room.name]
+    [createTimer, db, room.name, roomExists]
   );
 
   return { start: handleStart, timeLeft };

@@ -26,35 +26,18 @@
     "ecmaVersion": 2018,
     "sourceType": "module"
   },
-  "plugins": [
-    "react",
-    "@typescript-eslint",
-    "prettier"
-  ],
+  "plugins": ["react", "@typescript-eslint", "prettier"],
   "rules": {
     // deprecated rules
     "react/react-in-jsx-scope": "off",
     "no-unused-vars": "off",
     // rules we want
-    "@typescript-eslint/no-unused-vars": [
-      "warn"
-    ],
-    "indent": [
-      "error",
-      2
-    ],
-    "linebreak-style": [
-      "error",
-      "unix"
-    ],
-    "quotes": [
-      "error",
-      "double"
-    ],
-    "semi": [
-      "error",
-      "always"
-    ],
+    "@typescript-eslint/no-unused-vars": ["warn"],
+    "react/display-name": "off",
+    "indent": ["error", 2],
+    "linebreak-style": ["error", "unix"],
+    "quotes": ["error", "double"],
+    "semi": ["error", "always"],
     "prettier/prettier": [
       "warn",
       {
