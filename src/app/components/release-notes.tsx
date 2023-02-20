@@ -20,6 +20,15 @@ type Version = {
 
 const versions: Version[] = [
   {
+    versionNumber: "2",
+    releaseNotes: [
+      {
+        type: "New",
+        text: "Added release notes and go back buttons to session page.",
+      },
+    ],
+  },
+  {
     versionNumber: "1",
     releaseNotes: [
       {
