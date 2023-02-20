@@ -7,7 +7,6 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ReleaseNotes from "../../components/release-notes";
 
 export default () => {
   const navigate = useNavigate();
@@ -76,7 +75,6 @@ export default () => {
           </Button>
         </Container>
       </Container>
-      <ReleaseNotes />
     </Container>
   );
 };

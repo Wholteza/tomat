@@ -38,12 +38,7 @@ const ReleaseNotes = (): JSX.Element => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   return (
     <>
-      <Button
-        sx={{ position: "absolute", bottom: 20, right: 20 }}
-        onClick={() => setIsOpen(true)}
-      >
-        Release Notes
-      </Button>
+      <Button onClick={() => setIsOpen(true)}>Release Notes</Button>
       <Dialog open={isOpen}>
         <Container sx={{ marginTop: 2, overflowY: "auto" }}>
           {versions.map((version) => (

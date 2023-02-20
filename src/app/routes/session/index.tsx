@@ -10,8 +10,6 @@ import useDocumentTitle from "../../use-document-title";
 export default () => {
   const { db } = useContext(FirebaseContext);
   const { room } = useRoom(db);
-
-  const [attributionsOpen, setAttributionsOpen] = useState<boolean>(false);
   const [customTime, setCustomTime] = useState<number>();
   const timerStartingAudioRef = useRef<HTMLAudioElement>(null);
   const timerEndingAudioRef = useRef<HTMLAudioElement>(null);
@@ -144,27 +142,6 @@ export default () => {
       <audio src={timerStarting} ref={timerStartingAudioRef}>
         timerStarting
       </audio>
-      <Button
-        color="primary"
-        style={{ position: "absolute", right: 20, bottom: 20 }}
-        onClick={() => setAttributionsOpen(true)}
-      >
-        Attributions
-      </Button>
-
-      <Dialog open={attributionsOpen}>
-        <Button
-          href="https://www.flaticon.com/free-icons/tomato"
-          title="tomato icons"
-          rel="noopener"
-          target="_blank"
-        >
-          Tomato icons created by Pixel perfect - Flaticon
-        </Button>
-        <Button color="secondary" onClick={() => setAttributionsOpen(false)}>
-          Close
-        </Button>
-      </Dialog>
     </>
   );
 };
