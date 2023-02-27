@@ -12,12 +12,54 @@ import FirebaseContext from "./contexts/firebase";
 import ReleaseNotes from "./components/release-notes";
 import Attributions from "./components/attributions";
 import BottomRight from "./components/bottom-right";
+import colors from "./colors";
 
 const App = () => {
   const firebase = useFirebase();
   const db = useDb(firebase.app);
 
-  const theme = useMemo(() => createTheme({ palette: { mode: "dark" } }), []);
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: "dark",
+          background: {
+            default: colors.bg,
+          },
+          text: {
+            primary: colors.fg,
+            disabled: colors.fg4,
+            secondary: colors.fg2,
+          },
+          primary: {
+            main: colors.green,
+          },
+          secondary: {
+            main: colors.aqua,
+          },
+          error: {
+            main: colors.red,
+          },
+          success: { main: colors.green },
+          warning: { main: colors.yellow },
+          info: { main: colors.blue },
+        },
+        spacing: 8,
+        breakpoints: {
+          values: {
+            xs: 0,
+            sm: 600,
+            md: 900,
+            lg: 1200,
+            xl: 1536,
+          },
+        },
+        typography: {
+          h1: { fontSize: "9rem" },
+        },
+      }),
+    []
+  );
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
@@ -36,6 +78,10 @@ const App = () => {
             minWidth: "100%",
             padding: 5,
             color: "text.secondary",
+            [theme.breakpoints.down("sm")]: {
+              padding: 0,
+              margin: 0,
+            },
           }}
         >
           <>

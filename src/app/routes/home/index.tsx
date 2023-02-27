@@ -4,6 +4,7 @@ import {
   TextField,
   Button,
   useTheme,
+  Paper,
 } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -13,68 +14,88 @@ export default () => {
   const theme = useTheme();
   const [roomNameInput, setRoomNameInput] = useState<string>("");
   return (
-    <Container sx={{ margin: "0 auto" }}>
-      <Container>
-        <Typography variant="h2">Tomat</Typography>
-        <Typography variant="caption">A bare bones pomodoro timer</Typography>
-        <Typography sx={{ padding: "5px" }}>
-          To start a session use the input below or append /YourRoomName to the
-          current address.
-        </Typography>
-        <Typography sx={{ padding: "5px" }}>
-          Sessions are public. Just send the session address to your teammates
-          to have a shared timer.
-        </Typography>
-        <Container
-          sx={{
-            marginTop: "20px",
-            display: "flex",
-            flexDirection: "row",
-            [theme.breakpoints.down("sm")]: {
-              flexDirection: "column",
-            },
-          }}
-          disableGutters
-        >
-          <TextField
+    <Container
+      sx={{
+        margin: "0 auto",
+        [theme.breakpoints.down("sm")]: {
+          padding: 0,
+          margin: 0,
+        },
+      }}
+    >
+      <Paper
+        sx={{
+          padding: 8,
+          [theme.breakpoints.down("sm")]: {
+            padding: 2,
+            margin: 0,
+            width: "100vw",
+            height: "100vh",
+          },
+        }}
+      >
+        <Container>
+          <Typography variant="h2">Tomat</Typography>
+          <Typography variant="caption">A bare bones pomodoro timer</Typography>
+          <Typography sx={{ padding: "5px" }}>
+            To start a session use the input below or append /YourRoomName to
+            the current address.
+          </Typography>
+          <Typography sx={{ padding: "5px" }}>
+            Sessions are public. Just send the session address to your teammates
+            to have a shared timer.
+          </Typography>
+          <Container
             sx={{
+              marginTop: "20px",
+              display: "flex",
+              flexDirection: "row",
               [theme.breakpoints.down("sm")]: {
-                flex: 1,
+                flexDirection: "column",
               },
             }}
-            variant="standard"
-            size="small"
-            value={roomNameInput}
-            onChange={(event) =>
-              setRoomNameInput(event.currentTarget.value ?? "")
-            }
-            placeholder="Enter a session name"
-            onKeyUp={(event) => {
-              if (event.key !== "Enter" || !roomNameInput.length) return;
-              navigate({ pathname: `/${roomNameInput}` });
-            }}
-          />
-          <Button
-            sx={{
-              marginLeft: "20px",
-              [theme.breakpoints.down("sm")]: {
-                flex: 1,
-                marginLeft: 0,
-                marginTop: "8px",
-              },
-            }}
-            variant="outlined"
-            size="small"
-            color="primary"
-            onClick={() =>
-              roomNameInput.length &&
-              navigate({ pathname: `/${roomNameInput}` })
-            }
+            disableGutters
           >
-            Join session
-          </Button>
+            <TextField
+              sx={{
+                [theme.breakpoints.down("sm")]: {
+                  flex: 1,
+                },
+              }}
+              variant="standard"
+              size="small"
+              value={roomNameInput}
+              onChange={(event) =>
+                setRoomNameInput(event.currentTarget.value ?? "")
+              }
+              placeholder="Enter a session name"
+              onKeyUp={(event) => {
+                if (event.key !== "Enter" || !roomNameInput.length) return;
+                navigate({ pathname: `/${roomNameInput}` });
+              }}
+            />
+            <Button
+              sx={{
+                marginLeft: "20px",
+                [theme.breakpoints.down("sm")]: {
+                  flex: 1,
+                  marginLeft: 0,
+                  marginTop: "8px",
+                },
+              }}
+              variant="outlined"
+              size="small"
+              color="primary"
+              onClick={() =>
+                roomNameInput.length &&
+                navigate({ pathname: `/${roomNameInput}` })
+              }
+            >
+              Join session
+            </Button>
+          </Container>
         </Container>
-      </Container>
+      </Paper>
     </Container>
   );
 };
